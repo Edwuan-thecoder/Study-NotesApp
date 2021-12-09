@@ -13,6 +13,7 @@ class Note(db.Model):
     # This field will be the field that create a relationship with the User table ((One to Many relationship))
     user_ID = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
@@ -20,3 +21,6 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     # Store all notes(NoteId) for specific User here
     notes = db.relationship('Note')
+
+
+
