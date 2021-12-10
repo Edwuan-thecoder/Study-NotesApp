@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import User
+import sqlalchemy
 # import flask login to have the ability to hash a password
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
@@ -15,11 +16,16 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # query the database for email and password
-        user = User.query.filter_by(email=email).first()
+        # Using RAW SQL to query the database for email and password
+
+        # user = User.query.filter_by(email=email).first()
+
+        user = db.engine.execute(f"SELECT * FROM User WHERE email = '{email}'").first()
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in successfully!', category="success")
+
+                user = User.query.filter_by(email=email).first()
                 # Use login user so the User will not have to log in every single time
                 login_user(user, remember=True)
                 return redirect(url_for('views.home'))
@@ -49,25 +55,27 @@ def sign_up():
         user = User.query.filter_by(email=email).first()
         if user:
             flash('Email already exist.', category='error')
-
-        if len(email) < 4:
-            flash("Email must be greater than 3 characters.", category='error')
-
-        elif len(first_name) < 2:
-            flash("First name must be greater than 1 character.", category='error')
-        elif password1 != password2:
-            flash("Passwords don\'t match.", category='error')
-        elif len(password1) < 7:
-            flash("Password must be at least 7 characters.", category='error')
         else:
-            # add user to database
-            new_user = User(email=email, first_name=first_name, password=generate_password_hash(password1, method='sha256'))
-            db.session.add(new_user)
-            db.session.commit()
-            # Use login user so the User will not have to log in every single time
-            login_user(user, remember=True)
-            flash("Account created!", category='success')
-            # take the User back to the home page after we signed uo
-            return redirect(url_for('views.home'))
+            if len(email) < 4:
+                flash("Email must be greater than 3 characters.", category='error')
+
+            elif len(first_name) < 2:
+                flash("First name must be greater than 1 character.", category='error')
+            elif password1 != password2:
+                flash("Passwords don\'t match.", category='error')
+            elif len(password1) < 7:
+                flash("Password must be at least 7 characters.", category='error')
+            else:
+                # add user to database
+                new_user = User(email=email, first_name=first_name, password=generate_password_hash(password1, method='sha256'))
+                db.session.add(new_user)
+
+                db.session.commit()
+                # Use login user so the User will not have to log in every single time
+                # login_user(user, remember=True)
+                flash("Account created!", category='success')
+                # take the User back to the home page after we signed uo
+                if True:
+                    return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)
