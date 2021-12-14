@@ -6,7 +6,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
 
-
 auth = Blueprint('auth', __name__)
 
 
@@ -17,10 +16,8 @@ def login():
         password = request.form.get('password')
 
         # Using RAW SQL to query the database for email and password
-
-        # user = User.query.filter_by(email=email).first()
-
         user = db.engine.execute(f"SELECT * FROM User WHERE email = '{email}'").first()
+        # user = User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in successfully!', category="success")
@@ -75,7 +72,6 @@ def sign_up():
                 # login_user(user, remember=True)
                 flash("Account created!", category='success')
                 # take the User back to the home page after we signed uo
-                if True:
-                    return redirect(url_for('views.home'))
+                return redirect(url_for('views.home'))
 
     return render_template("sign_up.html", user=current_user)

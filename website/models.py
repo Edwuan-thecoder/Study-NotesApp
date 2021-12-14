@@ -4,6 +4,7 @@ from . import db
 from flask_login import UserMixin
 # import func so that every time a note is created it will add the date
 from sqlalchemy.sql import func
+from datetime import datetime
 
 
 class Note(db.Model):
@@ -23,4 +24,13 @@ class User(db.Model, UserMixin):
     notes = db.relationship('Note')
 
 
+class BlogPost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    author = db.Column(db.String(20), nullable=False, default='N/A')
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+    def __repr__(self):
+        # A nice way to show that the User the blog have been created
+        return 'Blog post ' + str(self.id)

@@ -4,15 +4,19 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 
+
 # Creating SQLAlchemy database
 db = SQLAlchemy()
 DB_NAME = 'database.db'
+
+
 
 
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "eddie"
     app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{DB_NAME}'
+
     db.init_app(app)
 
 
@@ -27,7 +31,7 @@ def create_app():
     app.register_blueprint(auth, url_prefix="/")
 
     # import table here so that we can define them before  we create our database
-    from .models import User, Note
+    from .models import User, Note, BlogPost
 
     create_database(app)
 
@@ -49,3 +53,4 @@ def create_database(app):
     if not path.exists('website/' + DB_NAME):
         db.create_all(app=app)
         print('Created Database!')
+
